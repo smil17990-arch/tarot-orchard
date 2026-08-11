@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TAROT // ORCHARD ── フルーツシマエナガタロット</title>
+<meta property="og:title" content="TAROT // ORCHARD ── フルーツシマエナガタロット">
+<meta property="og:description" content="22枚の果実と、小さな羽の導き。フルーツを開いて、今日のシマエナガに出会おう。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://smil17990-arch.github.io/tarot-orchard/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fff3e0;
+    --bg2:#eafaf0;
+    --paper:#fffdf8;
+    --ink:#3a2f28;
+    --leaf:#3f9464;
+    --leaf-deep:#2c7049;
+    --citrus:#ff8a3d;
+    --berry:#8b5fbf;
+    --melon:#ff6f91;
+    --sky:#5db8dd;
+    --text-dim:#8a7f74;
+    --radius:22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% -6%, rgba(255,138,61,.22), transparent 42%),
+      radial-gradient(circle at 92% 8%, rgba(139,95,191,.18), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(63,148,100,.16), transparent 45%),
+      var(--bg1);
+    color:var(--ink);
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:30px 16px 60px;
+    overflow-x:hidden;
+  }
+  header{ text-align:center; margin:10px 0 26px; max-width:460px; }
+  .eyebrow{
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    font-weight:900;
+    letter-spacing:.24em;
+    font-size:.72rem;
+    color:var(--leaf-deep);
+    background:rgba(63,148,100,.14);
+    display:inline-block;
+    padding:5px 14px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Kiwi Maru', serif;
+    font-size:1.65rem;
+    line-height:1.5;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  h1 span{ color:var(--melon); }
+  .sub{
+    font-size:.86rem;
+    color:var(--text-dim);
+    line-height:1.8;
+    margin:0;
+  }
+
+  .stage{ width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center; }
+
+  /* ---- fruit-open prompt ---- */
+  .orchard{
+    position:relative;
+    width:100%;
+    background:var(--paper);
+    border-radius:var(--radius);
+    box-shadow:0 18px 40px rgba(80,50,20,.16), inset 0 0 0 1px rgba(0,0,0,.03);
+    padding:32px 22px 28px;
+    min-height:230px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .fruit-btn{
+    position:relative;
+    width:120px; height:120px;
+    border:none;
+    cursor:pointer;
+    background:none;
+    margin-bottom:16px;
+  }
+  .fruit-half{
+    position:absolute; top:0; width:60px; height:120px;
+    background:linear-gradient(160deg, #ffb15e, var(--citrus));
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);
+    transition:transform .5s cubic-bezier(.3,1.4,.4,1);
+  }
+  .fruit-half.left{ left:0; border-radius:60px 0 0 60px; transform-origin:left center; }
+  .fruit-half.right{ right:0; border-radius:0 60px 60px 0; transform-origin:right center; }
+  .fruit-btn.split .fruit-half.left{ transform:rotateY(55deg) translateX(-6px); }
+  .fruit-btn.split .fruit-half.right{ transform:rotateY(-55deg) translateX(6px); }
+  .fruit-stem{
+    position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+    width:8px; height:18px; background:var(--leaf-deep); border-radius:4px;
+    z-index:2;
+  }
+  .fruit-leaf{
+    position:absolute; top:-10px; left:calc(50% + 6px);
+    width:20px; height:12px; background:var(--leaf);
+    border-radius:0 100% 0 100%;
+    transform:rotate(-20deg);
+    z-index:2;
+  }
+
+  .prompt-text{ font-size:.94rem; color:#5a4d42; line-height:1.9; margin-bottom:4px; }
+  .prompt-hint{ font-size:.76rem; color:var(--text-dim); }
+
+  /* juice droplets */
+  .droplets{ position:absolute; inset:0; pointer-events:none; overflow:visible; }
+  .droplet{
+    position:absolute;
+    width:8px; height:8px;
+    border-radius:50% 50% 50% 0;
+    background:var(--citrus);
+    opacity:0;
+  }
+  .fruit-btn.split .droplet{ animation:drop .7s ease-out forwards; }
+  @keyframes drop{
+    0%{ opacity:1; transform:translateY(0) scale(1); }
+    100%{ opacity:0; transform:translateY(46px) scale(.4); }
+  }
+
+  /* ---- card result ---- */
+  .card-panel{ display:none; width:100%; }
+  .card-panel.show{ display:block; animation:riseIn .5s ease both; }
+  @keyframes riseIn{ from{opacity:0; transform:translateY(18px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+
+  .card-frame{
+    background:var(--paper);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 18px 40px rgba(80,50,20,.18);
+  }
+  .card-num-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px 0;
+  }
+  .card-num{
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    font-weight:900;
+    font-size:.78rem;
+    letter-spacing:.08em;
+    color:#fff;
+    background:var(--berry);
+    padding:4px 12px;
+    border-radius:999px;
+  }
+  .fruit-badge{
+    font-size:.78rem;
+    font-weight:700;
+    color:var(--leaf-deep);
+    background:rgba(63,148,100,.14);
+    padding:5px 12px;
+    border-radius:999px;
+  }
+  .card-img-wrap{
+    margin:12px 16px 0;
+    border-radius:16px;
+    overflow:hidden;
+    background:var(--bg2);
+    aspect-ratio:1/1;
+  }
+  .card-img-wrap img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card-body{ padding:16px 20px 22px; }
+  .card-tarot-en{
+    font-size:.72rem;
+    letter-spacing:.16em;
+    color:var(--text-dim);
+    text-align:center;
+    font-weight:700;
+  }
+  .card-fruit-name{
+    font-family:'Kiwi Maru', serif;
+    font-size:1.5rem;
+    text-align:center;
+    margin:2px 0 14px;
+    color:var(--melon);
+  }
+  .card-scene, .card-guidance{
+    font-size:.86rem;
+    line-height:1.95;
+    margin:0 0 12px;
+    color:#4a3f36;
+  }
+  .card-guidance{
+    background:rgba(255,138,61,.1);
+    border-left:3px solid var(--citrus);
+    padding:10px 12px;
+    border-radius:8px;
+    margin-bottom:0;
+  }
+  .card-guidance-label{
+    font-size:.7rem;
+    font-weight:900;
+    color:var(--citrus);
+    letter-spacing:.1em;
+    margin-bottom:4px;
+    display:block;
+  }
+
+  .actions{ display:flex; gap:10px; margin-top:18px; width:100%; max-width:420px; }
+  .actions button{
+    flex:1;
+    cursor:pointer;
+    border:none;
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    font-weight:700;
+    font-size:.86rem;
+    padding:13px 10px;
+    border-radius:999px;
+    color:#fff;
+  }
+  .btn-again{ background:var(--leaf); }
+  .btn-list{ background:transparent; border:1.5px solid var(--berry); color:var(--berry); }
+
+  /* ---- list / basket view ---- */
+  .basket-view{ display:none; width:100%; max-width:460px; margin-top:8px; }
+  .basket-view.show{ display:block; }
+  .basket-view h2{
+    font-family:'Kiwi Maru', serif;
+    font-size:1.05rem;
+    text-align:center;
+    margin:0 0 14px;
+    color:var(--berry);
+  }
+  .basket-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+  }
+  .basket-item{
+    background:var(--paper);
+    border-radius:14px;
+    padding:8px;
+    text-align:center;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(80,50,20,.1);
+    transition:transform .12s ease;
+  }
+  .basket-item:active{ transform:scale(.95); }
+  .basket-item img{
+    width:100%; aspect-ratio:1/1; object-fit:cover;
+    border-radius:10px; margin-bottom:6px;
+    background:var(--bg2);
+  }
+  .basket-item .bi-num{ font-size:.62rem; color:var(--text-dim); font-weight:700; }
+  .basket-item .bi-fruit{ font-size:.72rem; font-weight:700; color:var(--ink); }
+
+  footer{
+    margin-top:34px;
+    text-align:center;
+    font-size:.72rem;
+    color:var(--text-dim);
+    line-height:1.9;
+    max-width:420px;
+  }
+  footer a{ color:var(--leaf-deep); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">TAROT // ORCHARD</div>
+  <h1>フルーツシマエナガタロット<br><span>22枚の果実</span>と、小さな羽の導き</h1>
+  <p class="sub">果物を開くと、シマエナガたちが群れで現れます。<br>今日の一枚は、どの果実の中に。</p>
+</header>
+
+<div class="stage">
+
+  <div class="orchard" id="orchardPrompt">
+    <button class="fruit-btn" id="fruitBtn" aria-label="フルーツを開く">
+      <div class="fruit-stem"></div>
+      <div class="fruit-leaf"></div>
+      <div class="fruit-half left"></div>
+      <div class="fruit-half right"></div>
+      <div class="droplets" id="droplets"></div>
+    </button>
+    <p class="prompt-text">フルーツをタップして<br>開いてみてください。</p>
+    <p class="prompt-hint">中から、今日出会うシマエナガが飛び出します。</p>
+  </div>
+
+  <div class="card-panel" id="cardPanel">
+    <div class="card-frame">
+      <div class="card-num-row">
+        <div class="card-num" id="cardNum">0</div>
+        <div class="fruit-badge" id="cardFruitBadge"></div>
+      </div>
+      <div class="card-img-wrap"><img id="cardImg" src="" alt=""></div>
+      <div class="card-body">
+        <div class="card-tarot-en" id="cardTarotEn"></div>
+        <div class="card-fruit-name" id="cardFruitName"></div>
+        <p class="card-scene" id="cardScene"></p>
+        <div class="card-guidance">
+          <span class="card-guidance-label">導き</span>
+          <span id="cardGuidance"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-again" id="againBtn" style="display:none;">もう一度フルーツを開く</button>
+    <button class="btn-list" id="listBtn">22枚のフルーツを見る</button>
+  </div>
+
+  <div class="basket-view" id="basketView">
+    <h2>── フルーツバスケット ──</h2>
+    <div class="basket-grid" id="basketGrid"></div>
+  </div>
+
+</div>
+
+<footer>
+  タロットというものは、もともと難しい顔をしている。<br>
+  でも──ふわふわのシマエナガなら、少しやわらかく見えるかもしれません。<br>
+  文：Claude（Anthropic）／画：ChatGPT（DALL-E）・Gemini／編集・演出：無限納豆<br>
+  原作note: <a href="https://note.com/vortex951/n/nf659fa79dee3" target="_blank" rel="noopener">フルーツシマエナガタロット</a><br>
+  データは保存されません。開くたびに、新しい一羽と出会います。
+</footer>
+
+<script>
+const CARDS = [
+{roman:"0", en:"THE FOOL", fruit:"ミックスフルーツ",
+ scene:"崖の上に立つシマエナガが、さくらんぼの包みを背負って旅立とうとしている。足元の崖には気づいていない。でも空は晴れ、世界は果実で満ちている。",
+ guidance:"何も持たないことが、最大の自由かもしれない。踏み出す前の不安は、踏み出した後の風になる。",
+ img:"1782254551-e5K4M0axgk6B1UDL2loRJ9GV.png"},
+{roman:"Ⅰ", en:"THE MAGICIAN", fruit:"ぶどう",
+ scene:"巨大なぶどうの房の頂上で、魔法使い帽子をかぶったシマエナガが金の球を浮かせている。房の中から覗く子、バスケットを持って走る子。意志があれば、世界は動く。",
+ guidance:"あなたにはすでに必要なものが揃っている。あとは使う決意だけ。",
+ img:"1782254576-ZlUjrFOVNfPX0zpbatdQcmyD.png"},
+{roman:"Ⅱ", en:"THE HIGH PRIESTESS", fruit:"ブルーベリー",
+ scene:"満月の下、宇宙のように輝くブルーベリーの上で、目を閉じたシマエナガが古書を読む。左右に蝋燭を持つ二羽、後ろで囁き合う二羽。沈黙の中に、答えがある。",
+ guidance:"今は行動より、内なる声を聴く時。静かにしていれば、見えてくるものがある。",
+ img:"1782254599-KvkVmile0fzj39DwHhs5G7Cy.png"},
+{roman:"Ⅲ", en:"THE EMPRESS", fruit:"桃",
+ scene:"巨大な桃の上で翼を広げる女王シマエナガ。花びらのケープをまとい、眠る三羽を見守る。桃を転がす子、枝から花びらを降らせる子。豊かさは、与えることで増える。",
+ guidance:"あなたの周りには、守るべき大切なものがある。その温かさを信じて。",
+ img:"1782254619-y5QT6pGSlUtvP94DJVgRLaoh.png"},
+{roman:"Ⅳ", en:"THE EMPEROR", fruit:"パイナップル",
+ scene:"パイナップルの玉座に座る王。冠もパイナップル、笏もパイナップル。磨く子、見張る子、こっそり笑う子。秩序は、誰かが真剣に守るから成り立つ。",
+ guidance:"責任を引き受ける時。ルールと構造があなたを守る。",
+ img:"1782254643-NqMrC41FuoLX2nfP37zSBkhH.png"},
+{roman:"Ⅴ", en:"THE HIEROPHANT", fruit:"いちじく",
+ scene:"割れたいちじくの中に座る法王シマエナガ。葉の法冠、スクロールを持つ侍者、深く頭を下げる二羽。知恵は積み重なり、伝えることで生きる。",
+ guidance:"先人の教えに耳を傾けて。師や伝統の中に、今のあなたへのヒントがある。",
+ img:"1782254664-hFvZBIXW0M5VpJPAS1H6ftCs.png"},
+{roman:"Ⅵ", en:"THE LOVERS", fruit:"いちご",
+ scene:"巨大ないちごの上で鼻先を合わせる二羽。上空でキューピッドシマエナガが弓を引いている。リボンを結ぶ子、花びらを散らす子。愛は、選択だ。",
+ guidance:"心が動いているなら、それが答え。大切なものを、大切にする勇気を。",
+ img:"1782254691-8PmWLXgxyjRaTFqrCOnc1SEf.png"},
+{roman:"Ⅶ", en:"THE CHARIOT", fruit:"スイカ",
+ scene:"スイカに乗って疾走するシマエナガ。星の冠、広げた翼、後ろから必死に押す二羽。種が火花のように飛び散る。止まらなければ、転ばない。",
+ guidance:"迷っている暇はない。今すぐ動け。勢いこそが最大の武器。",
+ img:"1782254712-qgRv0H7Kk5FyaoTeEbQ6rjfs.png"},
+{roman:"Ⅷ", en:"STRENGTH", fruit:"マンゴー",
+ scene:"花冠をつけたシマエナガが、巨大マンゴーの口を静かに開かせている。マンゴーはおとなしい顔をしている。驚く二羽、重いマンゴーを持とうとしてふらつく子、木の上で涼しい顔の子。本当の強さは、優しさの形をしている。",
+ guidance:"力で押さなくていい。穏やかな意志の方が、ずっと遠くまで届く。",
+ img:"1782254757-eVtZg0vAiGWSDOM75mB8EoN1.png"},
+{roman:"Ⅸ", en:"THE HERMIT", fruit:"りんご",
+ scene:"霧の山頂、ランタンを持つ隠者シマエナガ。りんごの穴から覗く子、遠く麓から見上げる二羽。孤独は、罰ではなく選択だ。",
+ guidance:"一人になることを恐れないで。今あなたが必要なのは、内なる光だけかもしれない。",
+ img:"1782254785-ymLogAFbEsiV31KB8T4JMnwk.png"},
+{roman:"Ⅹ", en:"WHEEL OF FORTUNE", fruit:"メロン",
+ scene:"網目模様が光るメロンの運命の輪。頂点で得意顔の子、登りながら希望を持つ子、落ちてくる子、底でぐるぐる目の子。占い師シマエナガが意地悪そうに輪を回す。",
+ guidance:"今が底でも、輪は必ず回る。今が頂点でも、謙虚さを忘れずに。",
+ img:"1782254810-tH6a8BpMIkrfX23WSxdCA1Y5.png"},
+{roman:"Ⅺ", en:"JUSTICE", fruit:"レモン",
+ scene:"巨大なレモンの上で目隠しをした裁判官シマエナガ。完璧に釣り合う天秤。汗をかく被告、情熱的に弁論する弁護士シマエナガ。公正さは、誰も見ていなくても揺るがない。",
+ guidance:"正しいことを、正しくやる。それだけでいい。結果は後からついてくる。",
+ img:"1782254847-UFqbx7G2yBJtKCWOhifclAnE.png"},
+{roman:"Ⅻ", en:"THE HANGED MAN", fruit:"さくらんぼ",
+ scene:"さくらんぼの茎から逆さに吊り下がるシマエナガ。その丸い体は、まるで三つ目のさくらんぼ。頭の周りに金色の後光。首を傾けて見上げる二羽、真似しようとしてふらつく子。",
+ guidance:"視点を変えれば、世界が変わる。今の「立ち止まり」は、無駄ではない。",
+ img:"1782254878-8cUbDKLjmWPdiBhopqM0VJ5N.png"},
+{roman:"ⅩⅢ", en:"DEATH", fruit:"ざくろ",
+ scene:"割れたざくろから、赤い種が魂のように空へ昇る。黒いマントの死神シマエナガは、怖くない。優しい案内人だ。地面には新しい芽。泣きながら微笑む二羽。光に包まれて昇っていく子。",
+ guidance:"終わりは、始まりの別名。手放すことで、次が来る。",
+ img:"1782254936-3GvcZhqWxKSldLoXrajkObM8.png"},
+{roman:"ⅩⅣ", en:"TEMPERANCE", fruit:"洋梨",
+ scene:"二つの洋梨型の器の間で、一滴もこぼさず液体を注ぐシマエナガ。真剣な顔で真似する子、瞑想する二羽、お腹に洋梨スライスを乗せて昼寝する子。バランスは、緊張ではなく余裕から生まれる。",
+ guidance:"焦らなくていい。少しずつ、丁寧に。それが一番遠くまで行ける道。",
+ img:"1782254983-5x8rOf2MBbNC1hzXdg7SeEJj.png"},
+{roman:"ⅩⅤ", en:"THE DEVIL", fruit:"ドラゴンフルーツ",
+ scene:"角とマントの悪魔シマエナガが仁王立ち。鎖につながれた二羽は、でも果物を食べてご機嫌。鎖は緩く、逃げようと思えば逃げられる。口笛を吹きながらこっそり逃げる子、隣の子に落書きする子。",
+ guidance:"あなたを縛っているものは、本当に鎖ですか？案外、自分で外せるかもしれない。",
+ img:"1782255032-hqyDd0PWJx36k5lZj1eF4aBg.png"},
+{roman:"ⅩⅥ", en:"THE TOWER", fruit:"ドリアン",
+ scene:"落雷を受けて爆裂するドリアン。白目で吹き飛ぶ二羽、帽子が飛んで泣く子。でも割れた内側には黄金の光。爆発中でも好奇心いっぱいで覗き込む子がいる。",
+ guidance:"崩壊は、隠れていたものを解放する。破壊の中にこそ、本当の宝がある。",
+ img:"1782255065-Ib8024UAFkuDZLRh76vSxmWJ.png"},
+{roman:"ⅩⅦ", en:"THE STAR", fruit:"スターフルーツ",
+ scene:"夜空に輝く八芒星はスターフルーツの断面。川辺でジュースを注ぐシマエナガ、願い事をする三羽、枝にスターフルーツを飾り付ける子。希望は、静かに降り注ぐ。",
+ guidance:"暗い夜ほど、星は明るく見える。今のあなたには、希望を信じる力がある。",
+ img:"1782255086-I7aRQ0rkHVJBfXPpK4EOADi5.png"},
+{roman:"ⅩⅧ", en:"THE MOON", fruit:"マスカット",
+ scene:"透き通るマスカットの房が月のように輝く夜。夢遊病のシマエナガが眠り帽子をかぶって道を歩く。狼耳の番人、ロブスターの番人が左右から見守る。粒の中にシルエットが二羽。",
+ guidance:"今は、見えないものに満ちている。直感を信じて。答えはもうあなたの中にある。",
+ img:"1782255104-EsUNhRao0tFYqriZ6jby5OVe.png"},
+{roman:"ⅩⅨ", en:"THE SUN", fruit:"オレンジ",
+ scene:"顔のある太陽が微笑むオレンジ農園。巨大なオレンジに乗った子が「まてまてー！」と叫ぶ。追いかける子、転がる子、見ている子。全員がまぶしいほど楽しそうだ。",
+ guidance:"今日は、ただ楽しんでいい日。あなたには、輝く権利がある。",
+ img:"1782255130-1MEJbULnkYyfxNPrQVZ7vSsT.png"},
+{roman:"ⅩⅩ", en:"JUDGEMENT", fruit:"パパイヤ",
+ scene:"割れたパパイヤから金色の種が音符となって空へ昇る。トランペットを吹く天使シマエナガ。光の中から飛び出す三羽。泣きながら翼を広げる二羽。まだ半分眠っている子。",
+ guidance:"目覚めの時が来た。過去を手放して、新しい自分を迎えに行こう。",
+ img:"1782255187-b9XDFktq8sSmTy4VaoUL3ndI.png"},
+{roman:"ⅩⅩⅠ", en:"THE WORLD", fruit:"スイカ",
+ scene:"スイカ地球儀の上空で、リボンをまとったシマエナガが踊っている。四隅に風・光・波・山のシマエナガ。地球の表面に世界中のシマエナガ。全てが、ここにある。",
+ guidance:"おめでとう。一つのサイクルが完成した。あなたはすでに、どこへでも行ける。",
+ img:"1782255217-9mrXfyuPaNZU6CYAvqbBxnMw.png"}
+];
+
+const IMG_BASE = "https://assets.st-note.com/img/";
+function imgUrl(f){ return IMG_BASE + f + "?width=1200"; }
+const $ = (id) => document.getElementById(id);
+
+function renderCard(card){
+  $("cardNum").textContent = card.roman;
+  $("cardImg").src = imgUrl(card.img);
+  $("cardImg").alt = card.fruit;
+  $("cardFruitBadge").textContent = card.fruit;
+  $("cardTarotEn").textContent = card.en;
+  $("cardFruitName").textContent = card.fruit;
+  $("cardScene").textContent = card.scene;
+  $("cardGuidance").textContent = card.guidance;
+}
+
+function spawnDroplets(){
+  const wrap = $("droplets");
+  wrap.innerHTML = "";
+  const colors = ["#ff8a3d","#8b5fbf","#ff6f91","#3f9464"];
+  for(let i=0;i<7;i++){
+    const d = document.createElement("div");
+    d.className = "droplet";
+    d.style.left = (30 + Math.random()*60) + "px";
+    d.style.top = (40 + Math.random()*20) + "px";
+    d.style.background = colors[i % colors.length];
+    d.style.animationDelay = (Math.random()*0.15) + "s";
+    wrap.appendChild(d);
+  }
+}
+
+function playOpen(){
+  const btn = $("fruitBtn");
+  spawnDroplets();
+  btn.classList.remove("split");
+  void btn.offsetWidth;
+  btn.classList.add("split");
+}
+
+function draw(){
+  const card = CARDS[Math.floor(Math.random() * CARDS.length)];
+  playOpen();
+  setTimeout(()=>{
+    renderCard(card);
+    $("orchardPrompt").style.display = "none";
+    $("cardPanel").classList.add("show");
+    $("againBtn").style.display = "block";
+    $("basketView").classList.remove("show");
+    $("listBtn").textContent = "22枚のフルーツを見る";
+    window.scrollTo({top:0, behavior:"smooth"});
+  }, 480);
+}
+
+function showCardFromBasket(idx){
+  renderCard(CARDS[idx]);
+  $("orchardPrompt").style.display = "none";
+  $("cardPanel").classList.add("show");
+  $("againBtn").style.display = "block";
+  $("basketView").classList.remove("show");
+  $("listBtn").textContent = "22枚のフルーツを見る";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function buildBasket(){
+  const wrap = $("basketGrid");
+  wrap.innerHTML = "";
+  CARDS.forEach((c, i)=>{
+    const el = document.createElement("div");
+    el.className = "basket-item";
+    el.innerHTML = `
+      <img src="${imgUrl(c.img)}" alt="${c.fruit}">
+      <div class="bi-num">${c.roman}</div>
+      <div class="bi-fruit">${c.fruit}</div>`;
+    el.addEventListener("click", ()=>showCardFromBasket(i));
+    wrap.appendChild(el);
+  });
+}
+
+$("fruitBtn").addEventListener("click", draw);
+$("againBtn").addEventListener("click", draw);
+$("listBtn").addEventListener("click", ()=>{
+  const basketView = $("basketView");
+  const isShown = basketView.classList.toggle("show");
+  $("listBtn").textContent = isShown ? "閉じる" : "22枚のフルーツを見る";
+  if(isShown) window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+});
+
+buildBasket();
+</script>
+</body>
+</html>
