@@ -29,6 +29,17 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  .home-btn{
+    position:fixed; top:16px; left:16px; z-index:40;
+    width:42px; height:42px;
+    border-radius:50%;
+    background:var(--paper);
+    border:1.5px solid var(--citrus);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(80,50,20,.25);
+  }
+  .home-btn svg{ width:18px; height:18px; }
   body{
     background:
       radial-gradient(circle at 12% -6%, rgba(255,138,61,.22), transparent 42%),
@@ -277,6 +288,9 @@
 </head>
 <body>
 
+<button class="home-btn" id="homeBtn" aria-label="ホームに戻る">
+  <svg viewBox="0 0 24 24" fill="none" stroke="var(--citrus)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg>
+</button>
 <header>
   <div class="eyebrow">TAROT // ORCHARD</div>
   <h1>フルーツシマエナガタロット<br><span>22枚の果実</span>と、小さな羽の導き</h1>
@@ -505,6 +519,16 @@ function buildBasket(){
   });
 }
 
+$("homeBtn").addEventListener("click", ()=>{
+  $("cardPanel").classList.remove("show");
+  $("basketView").classList.remove("show");
+  $("listBtn").textContent = "22枚のフルーツを見る";
+  $("againBtn").style.display = "none";
+  $("fruitBtn").classList.remove("split");
+  $("droplets").innerHTML = "";
+  $("orchardPrompt").style.display = "flex";
+  window.scrollTo({top:0, behavior:"smooth"});
+});
 $("fruitBtn").addEventListener("click", draw);
 $("againBtn").addEventListener("click", draw);
 $("listBtn").addEventListener("click", ()=>{
